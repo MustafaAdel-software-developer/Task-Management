@@ -1,0 +1,49 @@
+@import './base.css';
+
+/* Reset default styles for full-width app */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+/* Vuetify app should take full width */
+.v-application {
+  width: 100% !important;
+  height: 100vh !important;
+}
+
+/* Ensure main content takes full width */
+.v-main {
+  width: 100% !important;
+}
+
+/* Remove any default margins from containers */
+.v-container {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Custom styles for links */
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}

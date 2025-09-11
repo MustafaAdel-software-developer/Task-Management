@@ -11,10 +11,15 @@ public class TaskManagmentContext(DbContextOptions<TaskManagmentContext> options
     public DbSet<TaskComment> TaskComments {get; set;}
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Role>()
+            .HasData(
+                new Role{RoleId = 1, RoleName = "Admin"},
+                new Role{RoleId = 2, RoleName = "Deafult"}
+                );
+        
         modelBuilder.Entity<TaskItem>()
             .HasKey(t => t.TaskId);
 
@@ -30,18 +35,15 @@ public class TaskManagmentContext(DbContextOptions<TaskManagmentContext> options
         modelBuilder.Entity<Role>()
             .HasKey(r => r.RoleId);
 
-        modelBuilder.Entity<UserRole>()
-            .HasKey(ur => new { ur.UserId, ur.RoleId });
-
-        modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.User)
-            .WithMany(u => u.UserRoles)
-            .HasForeignKey(ur => ur.UserId);
-
-        modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.Role)
-            .WithMany(r => r.UserRoles)
-            .HasForeignKey(ur => ur.RoleId);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId);
+        
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
         modelBuilder.Entity<TaskItem>()
             .HasOne(t => t.Reporter)

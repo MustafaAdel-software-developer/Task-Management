@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagmentCore;
 
@@ -11,9 +12,11 @@ using TaskManagmentCore;
 namespace TaskManagmentCore.Migrations
 {
     [DbContext(typeof(TaskManagmentContext))]
-    partial class TaskManagmentContextModelSnapshot : ModelSnapshot
+    [Migration("20250910085952_MakeEmailUniqueWithIndexOnIt")]
+    partial class MakeEmailUniqueWithIndexOnIt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,18 +40,6 @@ namespace TaskManagmentCore.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            RoleName = "Admin"
-                        },
-                        new
-                        {
-                            RoleId = 2,
-                            RoleName = "Deafult"
-                        });
                 });
 
             modelBuilder.Entity("TaskManagmentCore.Models.TaskModels.TaskCategory", b =>
@@ -162,15 +153,6 @@ namespace TaskManagmentCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RefreshTokenExpires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -180,9 +162,28 @@ namespace TaskManagmentCore.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TaskManagmentCore.Models.UserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("UserId", "RoleId");
+
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("TaskManagmentCore.Models.TaskModels.TaskComment", b =>
@@ -230,20 +231,28 @@ namespace TaskManagmentCore.Migrations
                     b.Navigation("TaskCategory");
                 });
 
-            modelBuilder.Entity("TaskManagmentCore.Models.User", b =>
+            modelBuilder.Entity("TaskManagmentCore.Models.UserRole", b =>
                 {
                     b.HasOne("TaskManagmentCore.Models.Role", "Role")
-                        .WithMany("Users")
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TaskManagmentCore.Models.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskManagmentCore.Models.Role", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("TaskManagmentCore.Models.TaskModels.TaskCategory", b =>
@@ -263,6 +272,8 @@ namespace TaskManagmentCore.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("ReportedTasks");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }
